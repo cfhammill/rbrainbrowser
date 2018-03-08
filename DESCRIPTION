@@ -1,10 +1,10 @@
-Package: brainbrowser
+Package: rbrainbrowser
 Type: Package
 Title: Brainbrowser html widgets
-Version: 1.0
+Version: 0.1
 Date: 2018-03-01
 Author: Chris Hammill
 Maintainer: Chris Hammill <cfhammill@gmail.com>
-Description: Render surface meshes as htmlwidgets with webGL
+Description: Render surface meshes as htmlwidgets with brainbrowser
 License: MIT
 RoxygenNote: 6.0.1
