@@ -15,12 +15,26 @@ HTMLWidgets.widget({
 	if(x.hasOwnProperty("color_map")){
 	  viewer.loadColorMapFromString(x.color_map);
 	}
-	   
-	viewer.loadModelFromLocal(x.data, "brain.obj");
 
-	if(x.hasOwnProperty("intens")){
-	  viewer.loadIntensityDataFromLocal(x.intens, "intens");
-	}
+	viewer.addEventListener("displaymodel", function(e){
+	  if(x.hasOwnProperty("intens")){
+	    viewer.loadIntensityDataFromLocal(x.intens, "intens");
+	  }
+	});
+	
+
+	viewer.addEventListener("loadintensitydata", function(e){
+	  console.log(e);
+	  var min = viewer.model_data.get().intensity_data[0].min;
+	  var max = viewer.model_data.get().intensity_data[0].max;
+	  if(x.hasOwnProperty("min")) min = x.min;
+	  if(x.hasOwnProperty("max")) max = x.max;
+	  
+	  viewer.setIntensityRange(min, max);
+	});
+
+	viewer.loadModelFromLocal(x.data, "brain.obj");
+	
       },
       resize: function(width, height){
 	viewer.updateViewport();
