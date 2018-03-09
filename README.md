@@ -11,8 +11,10 @@ Example:
     library(rbrainbrowser)
     library(jsonlite)
 
-    obj_file <- fromJSON(gzcon(url("https://github.com/aces/brainbrowser/raw/master/examples/models/dbs-vat.json.gz")))
+    obj <-
+      fromJSON(
+        gzcon(
+          url("https://github.com/aces/brainbrowser/raw/master/examples/models/dbs-vat.json.gz"))
+      , simplifyDataFrame = FALSE)
 
     brainbrowser(obj_file)
-
-![](README_files/figure-markdown_strict/unnamed-chunk-3-1.png)
