@@ -1,0 +1,46 @@
+dependencies:
+- name: brainbrowser
+  version: 2.5.5
+  src: htmlwidgets/lib/
+  script:
+  - lib/pako.js
+  - brainbrowser.js
+  - core/tree-store.js
+  - lib/color-map.js
+  - lib/config.js
+  - lib/utils.js	
+  - lib/events.js
+  - lib/loader.js
+  - workers/deindex.worker.js
+  - workers/freesurferasc.intensity.worker.js
+  - workers/freesurferasc.worker.js
+  - workers/freesurferbin.intensity.worker.js
+  - workers/freesurferbin.worker.js
+  - workers/gifti-reader.js
+  - workers/gifti.worker.js
+  - workers/json.worker.js
+  - workers/mniobj.worker.js
+  - workers/text.intensity.worker.js
+  - workers/wavefrontobj.worker.js
+  - workers/wireframe.worker.js
+  - surface-viewer.js
+  - volume-viewer.js
+  - volume-viewer/lib/utils.js
+  - volume-viewer/lib/display.js
+  - volume-viewer/lib/panel.js
+  - volume-viewer/volume-loaders/nifti1.js
+  - volume-viewer/volume-loaders/mgh.js
+  - volume-viewer/volume-loaders/netcdf.js
+  - volume-viewer/volume-loaders/hdf5.js
+  - volume-viewer/volume-loaders/minc.js
+  - volume-viewer/volume-loaders/overlay.js
+  - volume-viewer/modules/loading.js
+  - volume-viewer/modules/rendering.js
+  - surface-viewer/lib/three.js
+  - surface-viewer/lib/parse-intensity-data.js
+  - surface-viewer/modules/loading.js
+  - surface-viewer/modules/color.js
+  - surface-viewer/modules/views.js
+  - surface-viewer/modules/rendering.js
+  - surface-viewer/modules/annotations.js
+

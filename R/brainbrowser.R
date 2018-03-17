@@ -6,6 +6,10 @@ brainbrowser <-
          , color_map = NULL
          , min = NULL
          , max = NULL
+         , zoom = 1
+         , rotation = NULL
+         , matrix = NULL
+         , debug = FALSE
          , width = "100%"
          , height = "400px"){
     
@@ -15,6 +19,10 @@ brainbrowser <-
          , color_map = color_map
          , min = min
          , max = max
+         , zoom = zoom
+         , debug = debug
+         , rotation = rotation
+         , matrix = matrix
            )
 
     data <- Filter(function(d) !is.null(d), data)
@@ -27,24 +35,10 @@ brainbrowser <-
 
 #' @export
 brainbrowserOutput <- function(outputId
-                             , intensities = NULL
-                             , color_map = NULL
                              , width = "100%"
                              , height = "400px") {
 
-  data <-
-    list(data = obj
-       , intens = intensities
-       , color_map = color_map
-       , min = min
-       , max = max
-         )
-
-  data <- Filter(function(d) !is.null(d), data)
-
   shinyWidgetOutput(outputId, "bb"
-                  , intensities = intensities
-                  , color_map = color_map
                   , width
                   , height
                   , package = "rbrainbrowser")
@@ -53,5 +47,5 @@ brainbrowserOutput <- function(outputId
 #' @export
 renderBrainbrowser <- function(expr, env = parent.frame(), quoted = FALSE) {
   if (!quoted) { expr <- substitute(expr) } # force quoted
-  shinyRenderWidget(expr, sigmaOutput, env, quoted = TRUE)
+  shinyRenderWidget(expr, brainbrowserOutput, env, quoted = TRUE)
 }
