@@ -11,7 +11,7 @@ Example:
     library(rbrainbrowser)
     library(jsonlite)
 
-    obj <-
+    obj_file <-
       fromJSON(
         gzcon(
           url("https://github.com/aces/brainbrowser/raw/master/examples/models/dbs-vat.json.gz"))

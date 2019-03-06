@@ -22,7 +22,7 @@ library(jsonlite)
 
 
 ```{r, eval = FALSE}
-obj <-
+obj_file <-
   fromJSON(
     gzcon(
       url("https://github.com/aces/brainbrowser/raw/master/examples/models/dbs-vat.json.gz"))
