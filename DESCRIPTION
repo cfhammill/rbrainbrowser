@@ -7,4 +7,16 @@ Author: Chris Hammill
 Maintainer: Chris Hammill <cfhammill@gmail.com>
 Description: Render surface meshes as htmlwidgets with brainbrowser
 License: MIT
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.1
+Imports: 
+    lenses,
+    magrittr,
+    purrr,
+    htmltools,
+    openssl,
+    svglite,
+    rlang
+Collate: 
+    'utils-pipe.R'
+    'brainbrowser.R'
+    'rbrainbrowser-package.R'

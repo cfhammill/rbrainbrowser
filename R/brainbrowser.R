@@ -1,4 +1,8 @@
-#' @import htmlwidgets
+#' @import htmlwidgets lenses htmltools
+#' @importFrom purrr keep discard map_lgl map
+#' @importFrom svglite stringSVG
+#' @importFrom rlang eval_tidy enexpr
+#' @include utils-pipe.R
 #' @export
 brainbrowser <-
   function(obj
