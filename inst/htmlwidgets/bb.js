@@ -6,13 +6,20 @@ HTMLWidgets.widget({
   
   factory: function(el, width, height) {
     BrainBrowser.config.set("worker_dir", "");
-    var viewer = BrainBrowser.SurfaceViewer.start(el.id, function(v){return v;});
+    var viewer = BrainBrowser.SurfaceViewer.start(el, function(v){return v;});
     var THREE = BrainBrowser.SurfaceViewer.THREE
+    el.viewer = viewer;
     viewer.render();
+    viewer.setClearColor("0xFFFFFF", 0);
     
     return {
       renderValue: function(x) {
         viewer.clearScreen();
+        Object.assign(el.style, {"background-color": x.bg_colour});
+
+        if(x.bg_plot !== undefined){
+          el.style.backgroundImage = x.bg_plot;
+        }
         
         if(x.hasOwnProperty("debug") && x.debug){
           window.viewer = viewer;

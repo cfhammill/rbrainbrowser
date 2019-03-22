@@ -52,6 +52,8 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
 
   scene.add(viewer.model);
 
+  viewer.renderer = renderer
+  
   /**
   * @doc function
   * @name viewer.rendering:render
