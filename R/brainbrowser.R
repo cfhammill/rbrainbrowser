@@ -1,7 +1,7 @@
 #' @import htmlwidgets lenses htmltools
 #' @importFrom purrr keep discard map_lgl map
 #' @importFrom svglite stringSVG
-#' @importFrom rlang eval_tidy enexpr
+#' @importFrom rlang eval_tidy enquo
 #' @include utils-pipe.R
 #' @export
 brainbrowser <-
@@ -19,7 +19,7 @@ brainbrowser <-
          , width = "100%"
          , height = "400px"){
 
-    bg_plot <- enexpr(bg_plot)
+    bg_plot <- enquo(bg_plot)
     bg_plot <- plot_to_url(bg_plot, width = width, height = height)    
   
     data <-
@@ -46,11 +46,14 @@ brainbrowser <-
 
 plot_to_url <- function(plot_cmd, height, width){
 
-  plot_cmd <- enexpr(plot_cmd)
+  print(height)
+  print(width)
+  plot_cmd <- enquo(plot_cmd)
   
   recursive_eval <- function(x){
-      if(!is.call(x)) return(x)
-      recursive_eval(eval_tidy(x))
+    print(x)
+    if(!is.call(x)) return(x)
+    recursive_eval(eval_tidy(x))
   }
     
   rendered_plot <-
@@ -94,7 +97,7 @@ bb <- function(obj = NULL
              , width = 1
              , height = 1){
 
-  bg_plot <- enexpr(bg_plot)
+  bg_plot <- enquo(bg_plot)
   mc <- match.call()[-1]
   args <- formals()
   args[names(mc)] <- mc
@@ -105,7 +108,7 @@ bb <- function(obj = NULL
 
 bbrow <- function(old, ..., height = 1, width = 1, bg_plot = NULL){  
   new <- list(...)
-  bg_plot <- enexpr(bg_plot)
+  bg_plot <- enquo(bg_plot)
   
   if(inherits(old, "colfig")){
     old[[length(old) + seq_along(new)]] <- new
@@ -118,7 +121,7 @@ bbrow <- function(old, ..., height = 1, width = 1, bg_plot = NULL){
 
 bbcol <- function(old, ..., height = 1, width = 1, bg_plot = NULL){
   new <- list(...)
-  bg_plot <- enexpr(bg_plot)
+  bg_plot <- enquo(bg_plot)
   
   if(inherits(old, "bbcol")){
     old[[length(old) + seq_along(new)]] <- new
@@ -298,10 +301,12 @@ fig_to_html_helper.bb <- function(fig){
                            , htmlwidgets:::toHTML(do.call(brainbrowser, fig)))))
 }
 fig_to_html_helper.bbcol <- function(fig){
-  if(!is.null(attr(fig, "bg_plot")){
+  if(!is.null(attr(fig, "bg_plot"))){
     toplevel_style <-
       paste0(table_style, "background-image: "
-           , plot_to_url(attr(fig, "bg_plot"), fig$height, fig$width))
+           , plot_to_url(attr(fig, "bg_plot")
+                       , view(fig, height_l)
+                       , view(fig, width_l)))
   } else {
     toplevel_style <- table_style
   }
@@ -320,11 +325,13 @@ fig_to_html_helper.bbcol <- function(fig){
 }
 
 fig_to_html_helper.bbrow <- function(fig){
-  if(!is.null(fig$bg_plot)){
+  if(!is.null(attr(fig, "bg_plot"))){
     print("in")
     toplevel_style <-
       paste0(table_style, "background-image: "
-           , plot_to_url(fig$bg_plot, fig$height, fig$width))
+           , plot_to_url(attr(fig, "bg_plot")
+                       , view(fig, height_l)
+                       , view(fig, width_l)))
   } else {
     toplevel_style <- table_style
   }
@@ -353,12 +360,13 @@ fig_to_html_helper.bbrow <- function(fig){
 ##          ))) %>%
 ##   htmltools::browsable()
 
+
 fig_to_html(
   reify_fig(
     bbrow(
       bb(obj_file)
     , bb(obj_file)
     , bb(obj_file)
-    , bg_plot = plot(1:15)
+    , bg_plot = {print("plotting at last"); plot(1:15) }
     ))) %>%
   htmltools::browsable()
