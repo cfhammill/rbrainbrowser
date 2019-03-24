@@ -59,7 +59,7 @@ plot_to_url <- function(plot_cmd, height, width){
   
   rendered_plot %>%
     openssl::base64_encode() %>%
-    paste0("url('data:image/svg+xml;base64,", ., "');")
+    paste0("url('data:image/svg+xml;base64,", ., "')")
 }
 
 #' @export
@@ -303,7 +303,9 @@ fig_to_html_helper.bbcol <- function(fig){
       paste0(table_style, "background-image: "
            , plot_to_url(attr(fig, "bg_plot")
                        , view(fig, height_l)
-                       , view(fig, width_l)))
+                       , view(fig, width_l))
+           , ";"
+             )
   } else {
     toplevel_style <- table_style
   }
@@ -327,7 +329,9 @@ fig_to_html_helper.bbrow <- function(fig){
       paste0(table_style, "background-image: "
            , plot_to_url(attr(fig, "bg_plot")
                        , view(fig, height_l)
-                       , view(fig, width_l)))
+                       , view(fig, width_l))
+           , ";"
+             )
   } else {
     toplevel_style <- table_style
   }
@@ -363,8 +367,8 @@ fig_to_html_helper.bbrow <- function(fig){
 ##         bb(obj_file)
 ##       , bb(obj_file)
 ##       , bb(obj_file)
-##       , bg_plot = {print("plotting at last"); plot(1:15) }
+##       , bg_plot = plot(1:15)
 ##       )
-##     , bb(obj_file))
+##     , bb(obj_file, bg_plot = plot(1:5)))
 ##   )) %>%
 ##   htmltools::browsable()
