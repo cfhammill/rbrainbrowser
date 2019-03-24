@@ -14,7 +14,7 @@ brainbrowser <-
          , rotation = NULL
          , matrix = NULL
          , debug = FALSE
-         , bg_colour = "#FFFFFF"
+         , bg_colour = ""
          , bg_plot = NULL
          , width = "100%"
          , height = "400px"){
@@ -92,7 +92,7 @@ bb <- function(obj = NULL
              , rotation = NULL
              , matrix = NULL
              , debug = FALSE
-             , bg_colour = "#FFFFFF"
+             , bg_colour = ""
              , bg_plot = NULL
              , width = 1
              , height = 1){

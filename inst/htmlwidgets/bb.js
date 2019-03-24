@@ -15,8 +15,9 @@ HTMLWidgets.widget({
     return {
       renderValue: function(x) {
         viewer.clearScreen();
-        Object.assign(el.style, {"background-color": x.bg_colour});
 
+        el.style.backgroundColor = x.bg_colour;
+        
         if(x.bg_plot !== undefined){
           el.style.backgroundImage = x.bg_plot;
         }
