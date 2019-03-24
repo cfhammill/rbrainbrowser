@@ -46,12 +46,9 @@ brainbrowser <-
 
 plot_to_url <- function(plot_cmd, height, width){
 
-  print(height)
-  print(width)
   plot_cmd <- enquo(plot_cmd)
   
   recursive_eval <- function(x){
-    print(x)
     if(!is.call(x)) return(x)
     recursive_eval(eval_tidy(x))
   }
@@ -326,7 +323,6 @@ fig_to_html_helper.bbcol <- function(fig){
 
 fig_to_html_helper.bbrow <- function(fig){
   if(!is.null(attr(fig, "bg_plot"))){
-    print("in")
     toplevel_style <-
       paste0(table_style, "background-image: "
            , plot_to_url(attr(fig, "bg_plot")
@@ -360,13 +356,15 @@ fig_to_html_helper.bbrow <- function(fig){
 ##          ))) %>%
 ##   htmltools::browsable()
 
-
-fig_to_html(
-  reify_fig(
-    bbrow(
-      bb(obj_file)
-    , bb(obj_file)
-    , bb(obj_file)
-    , bg_plot = {print("plotting at last"); plot(1:15) }
-    ))) %>%
-  htmltools::browsable()
+## fig_to_html(
+##   reify_fig(
+##     bbrow(
+##       bbrow(
+##         bb(obj_file)
+##       , bb(obj_file)
+##       , bb(obj_file)
+##       , bg_plot = {print("plotting at last"); plot(1:15) }
+##       )
+##     , bb(obj_file))
+##   )) %>%
+##   htmltools::browsable()
