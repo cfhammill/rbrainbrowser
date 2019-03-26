@@ -267,8 +267,8 @@ table_style <-
       , "padding-right" = "0px"
       , "padding-left" = "0px")
 
-fig_to_html <- function(fig){
-  scene <- fig_to_html_helper(fig)
+fig_to_html <- function(fig, unit_w = "px", unit_h = "px"){
+  scene <- fig_to_html_helper(fig, unit_w = unit_w, unit_h = unit_h)
 
   ## add_style <- function(tag){
   ##   if(!is.null(tag$name) && tag$name %in% c("table", "tr", "td", "div"))
@@ -285,60 +285,67 @@ fig_to_html <- function(fig){
 }
     
 
-fig_to_html_helper <- function(fig){
+fig_to_html_helper <- function(fig, unit_w = "px", unit_h = "px"){
     UseMethod("fig_to_html_helper")
 }
-fig_to_html_helper.bb <- function(fig){
+fig_to_html_helper.bb <- function(fig, unit_w = "px", unit_h = "px"){
+  fig$width <- paste0(fig$width, unit_w)
+  fig$height <- paste0(fig$height, unit_h)
   tags$table(style = table_style
            , tags$tr(style = table_style
                    , tags$td(style = table_style
                            , htmlwidgets:::toHTML(do.call(brainbrowser, fig)))))
 }
-fig_to_html_helper.bbcol <- function(fig){
+fig_to_html_helper.bbcol <- function(fig, unit_w = "px", unit_h = "px"){
+  new_width <- paste0(view(fig, width_l), unit_w)
+  new_height <- paste0(view(fig, height_l), unit_h)
+  
   if(!is.null(attr(fig, "bg_plot"))){
     toplevel_style <-
       paste0(table_style, "background-image: "
            , plot_to_url(attr(fig, "bg_plot")
-                       , view(fig, height_l)
-                       , view(fig, width_l))
+                       , new_height
+                       , new_width)
            , ";"
              )
   } else {
     toplevel_style <- table_style
   }
   do.call(tags$table
-        , c(height = view(fig, height_l)
-          , width = view(fig, width_l)
+        , c(height = new_height
+          , width = new_width
           , style = toplevel_style
           , map(fig, function(row){
             tags$tr(class = "row"
-                  , width = view(row, width_l)
-                  , height = view(row, height_l)
+                  , width = paste0(view(row, width_l), unit_w)
+                  , height = paste0(view(row, height_l), unit_h)
                   , style = table_style
-                  , tags$td(fig_to_html(row)
+                  , tags$td(fig_to_html(row, unit_w = unit_w, unit_h = unit_h)
                           , style = table_style))
           })))
 }
 
-fig_to_html_helper.bbrow <- function(fig){
+fig_to_html_helper.bbrow <- function(fig, unit_w = "px", unit_h = "px"){
+  new_width <- paste0(view(fig, width_l), unit_w)
+  new_height <- paste0(view(fig, height_l), unit_h)
   if(!is.null(attr(fig, "bg_plot"))){
     toplevel_style <-
       paste0(table_style, "background-image: "
            , plot_to_url(attr(fig, "bg_plot")
-                       , view(fig, height_l)
-                       , view(fig, width_l))
+                       , new_height
+                       , new_width)
            , ";"
              )
   } else {
     toplevel_style <- table_style
   }
-  tags$table(height = view(fig, height_l)
-           , width = view(fig, width_l)
+  tags$table(height = new_height
+           , width = new_width
            , style = toplevel_style
            , do.call(tags$tr
                    , c(style = table_style
                      , map(fig, function(col){
-                         tags$td(fig_to_html(col)
+                         tags$td(fig_to_html(col, unit_w = unit_w, unit_h = unit_h)
                                , style = table_style)
                        }))))
 }
