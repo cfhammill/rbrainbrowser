@@ -370,26 +370,23 @@ snap_page <- function(site, file = "test.png", port = 4869L
 }
 
 
-## x <- 
-## fig_to_html(
-##     reify_fig(
-##       (bb(obj_file) %rb% bb() %cb% bb(obj_file)))) %>%
-##   identity ##htmltools::browsable()
 
-## fig_to_html(
-##     reify_fig(
-##       bb(obj_file
-##        , bg_colour = "#00FF00"
-##        , bg_plot = plot(1:20)
-##          ))) %>%
-##   htmltools::browsable()
+## obj1 <-
+##   fromJSON(
+##     gzcon(
+##       url("https://github.com/aces/brainbrowser/raw/master/examples/models/dbs-vat.json.gz")), simplifyDataFrame = FALSE)
+
+## obj2 <-
+##   fromJSON(
+##     gzcon(
+##       url("https://github.com/aces/brainbrowser/raw/master/examples/models/dbs.json.gz")), simplifyDataFrame = FALSE)
 
 ## fig_to_html(
 ##   reify_fig(
 ##     bbrow(
 ##       bbcol(
 ##         bb()
-##       , bb(obj_file)
+##       , bb(obj1)
 ##       , bb()
 ##       , bg_plot = {
 ##         (iris %>%
@@ -399,9 +396,9 @@ snap_page <- function(site, file = "test.png", port = 4869L
 ##       , data = list(obj = obj2, zoom = 3)
 ##       )
 ##     , bb(bg_plot = plot(1:5))
-##     , data = list(obj = obj_file, zoom = 4)
+##     , data = list(obj = obj1, zoom = 4)
 ##     )
-##   , height = 780, width = 1240)
-##  , unit_w = "px", unit_h = "px"
+##   , height = 90, width = 180)
+##  , unit_w = "vmin", unit_h = "vmin"
 ## ) %>%
 ##   htmltools::html_print()
