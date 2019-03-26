@@ -15,7 +15,9 @@ Imports:
     htmltools,
     openssl,
     svglite,
-    rlang
+    rlang,
+    RSelenium,
+    wdman
 Collate: 
     'utils-pipe.R'
     'brainbrowser.R'
