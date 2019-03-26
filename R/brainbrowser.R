@@ -350,6 +350,26 @@ fig_to_html_helper.bbrow <- function(fig, unit_w = "px", unit_h = "px"){
                        }))))
 }
 
+snap_page <- function(site, file = "test.png", port = 4869L
+                    , height = 800, width = 1280
+                    , version = NULL){
+  drv <- wdman::chrome(port = port, version = version) #"73.0.3683.68"
+  sel <-
+    RSelenium::remoteDriver(
+                 port = port, browser = "chrome",
+               , extraCapabilities = list(
+                   chromeOptions = list(
+                     args = c("--headless"
+                            , paste0("--window-size=", width, ",", height))
+                   )))
+  
+  sel$open()
+  sel$navigate(paste0("file://", site))
+  sel$screenshot(file = file)
+  invisible(sel)
+}
+
+
 ## x <- 
 ## fig_to_html(
 ##     reify_fig(
@@ -364,35 +384,24 @@ fig_to_html_helper.bbrow <- function(fig, unit_w = "px", unit_h = "px"){
 ##          ))) %>%
 ##   htmltools::browsable()
 
-fig_to_html(
-  reify_fig(
-    bbrow(
-      bbcol(
-        bb()
-      , bb(obj_file)
-      , bb()
-      , bg_plot = plot(1:15)
-      , data = list(obj = obj2, zoom = 3)
-      )
-    , bb(bg_plot = plot(1:5))
-    , data = list(obj = obj_file, zoom = 4)
-    )
-  )) %>%
-  htmltools::html_print()
-
-eCaps <- list(
-  chromeOptions = list(
-    args = c('--headless', '--window-size=1280,800')))
-
-snap_page <- function(site, file = "test.png", port = 4869L){
-  drv <- wdman::chrome(port = port, version = "73.0.3683.68")
-  sel <- remoteDriver(port = port, browser = "chrome",
-                    , extraCapabilities = list(
-                        chromeOptions = list(
-                          args = c('--headless', '--window-size=1280,800')))
-)
-  sel$open()
-  sel$navigate(paste0("file://", site))
-  sel$screenshot(file = file)
-  invisible(sel)
-}
+## fig_to_html(
+##   reify_fig(
+##     bbrow(
+##       bbcol(
+##         bb()
+##       , bb(obj_file)
+##       , bb()
+##       , bg_plot = {
+##         (iris %>%
+##           ggplot(aes(x = Petal.Width, y = Sepal.Length)) +
+##           geom_point() ) %>% print
+##       }
+##       , data = list(obj = obj2, zoom = 3)
+##       )
+##     , bb(bg_plot = plot(1:5))
+##     , data = list(obj = obj_file, zoom = 4)
+##     )
+##   , height = 780, width = 1240)
+##  , unit_w = "px", unit_h = "px"
+## ) %>%
+##   htmltools::html_print()
