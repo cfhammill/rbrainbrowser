@@ -44,8 +44,13 @@ brainbrowser <-
                             , width = width, height = height)
   }
 
-plot_to_url <- function(plot_cmd, height, width){
-
+plot_to_url <- function(plot_cmd, height, width, scale = 4){
+  width <- as.numeric(gsub("[^0-9]", "", width)) 
+  height <- as.numeric(gsub("[^0-9]", "", height))
+  aspect <- height / (width + height)
+  new_height <- aspect * (scale * 2)
+  new_width  <- (1 - aspect) * (scale * 2)
+  
   plot_cmd <- enquo(plot_cmd)
   
   recursive_eval <- function(x){
@@ -55,7 +60,7 @@ plot_to_url <- function(plot_cmd, height, width){
     
   rendered_plot <-
     stringSVG(recursive_eval(plot_cmd)
-            , height = height / 96, width = width / 96)
+            , height = new_height, width = new_width)
   
   rendered_plot %>%
     openssl::base64_encode() %>%
