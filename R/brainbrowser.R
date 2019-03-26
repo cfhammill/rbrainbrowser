@@ -103,29 +103,36 @@ bb <- function(obj = NULL
   structure(args, class = "bb")
 }
 
-bbrow <- function(old, ..., height = 1, width = 1, bg_plot = NULL){  
+bbrow <- function(old, ..., height = 1, width = 1, bg_plot = NULL, data = NULL){  
   new <- list(...)
   bg_plot <- enquo(bg_plot)
   
   if(inherits(old, "colfig")){
     old[[length(old) + seq_along(new)]] <- new
-    if(is.null(old$bg_plot)) old$bg_plot <- bg_plot
-    old
+    if(is.null(attr(old, "bg_plot")))
+      attr(old, "bg_plot") <- bg_plot
+    over_map(old, indexes_l(), ~ unify_data(., data) )
   } else {
-    structure(c(list(old), new), bg_plot = bg_plot, height = height, width = width, class = "bbrow")
+    structure(c(list(old), new), bg_plot = bg_plot
+            , height = height, width = width, class = "bbrow") %>%
+      over_map(indexes_l(), ~ unify_data(., data) )
   }         
 }
 
-bbcol <- function(old, ..., height = 1, width = 1, bg_plot = NULL){
+bbcol <- function(old, ..., height = 1, width = 1, bg_plot = NULL, data = NULL){
   new <- list(...)
   bg_plot <- enquo(bg_plot)
   
   if(inherits(old, "bbcol")){
     old[[length(old) + seq_along(new)]] <- new
-    if(is.null(old$bg_plot)) old$bg_plot <- bg_plot
-    old
+    if(is.null(attr(old, "bg_plot")))
+      attr(old, "bg_plot") <- bg_plot
+    
+    over_map(old, indexes_l(), ~ unify_data(., data) )
   } else {
-    structure(c(list(old), new), bg_plot = bg_plot, height = height, width = width, class = "bbcol")
+    structure(c(list(old), new), bg_plot = bg_plot
+            , height = height, width = width, class = "bbcol") %>%
+      over_map(indexes_l(), ~ unify_data(., data) )
   }         
 }
 
@@ -222,43 +229,28 @@ spread_heights.bbcol <- function(fig, height){
     
 }
 
-propagate_data <- function(fig, seed = NULL) UseMethod("propagate_data")
-propagate_data.bb <- function(fig, seed = NULL){
-    if(!is.null(seed)){
-        seed <- discard(seed, is.null)
+unify_data <- function(fig, seed = NULL) UseMethod("unify_data")
+unify_data.bb <- function(fig, data){
+    if(!is.null(data)){
+        data <- discard(data, is.null)
         missing_names <- names(fig)[map_lgl(fig, is.null)]
-        updates <- intersect(missing_names, names(seed))
-        fig[updates] <- seed[match(updates, names(seed))]
+        updates <- intersect(missing_names, names(data))
+        fig[updates] <- data[match(updates, names(data))]
     }
     
     fig
 }
-propagate_data.bbcol <- function(fig, seed = NULL){
-    bbs <- keep(fig, ~ inherits(., "bb"))
-    if(length(bbs) > 0){
-        new_seed <- discard(bbs[[1]], is.null)
-        seed[names(new_seed)] <- new_seed
-    }
-
-    for(i in 1:length(fig)){
-        fig[[i]] <- propagate_data(fig[[i]], seed)
-        if(inherits(fig[[i]], "bb")){
-            new_seed <- discard(fig[[i]], is.null)            
-            seed[names(new_seed)] <- new_seed
-        } 
-    }
-
-    fig
+unify_data.bbcol <- function(fig, data){
+    over_map(fig, indexes_l(), ~ unify_data(., data) )
 }
-propagate_data.bbrow <- function(fig, seed = NULL){
-    propagate_data.bbcol(fig, seed)
+unify_data.bbrow <- function(fig, data){
+    unify_data.bbcol(fig, data)
 }
         
-reify_fig <- function(fig, height = 400, width = 600, seed = NULL){
+reify_fig <- function(fig, height = 400, width = 600){
     fig %>%
         spread_widths(width) %>%
-        spread_heights(height) %>%
-        propagate_data(seed)
+        spread_heights(height)
     
 }
 
@@ -360,15 +352,35 @@ fig_to_html_helper.bbrow <- function(fig){
 ##          ))) %>%
 ##   htmltools::browsable()
 
-## fig_to_html(
-##   reify_fig(
-##     bbrow(
-##       bbrow(
-##         bb(obj_file)
-##       , bb(obj_file)
-##       , bb(obj_file)
-##       , bg_plot = plot(1:15)
-##       )
-##     , bb(obj_file, bg_plot = plot(1:5)))
-##   )) %>%
-##   htmltools::browsable()
+fig_to_html(
+  reify_fig(
+    bbrow(
+      bbcol(
+        bb()
+      , bb(obj_file)
+      , bb()
+      , bg_plot = plot(1:15)
+      , data = list(obj = obj2, zoom = 3)
+      )
+    , bb(bg_plot = plot(1:5))
+    , data = list(obj = obj_file, zoom = 4)
+    )
+  )) %>%
+  htmltools::html_print()
+
+eCaps <- list(
+  chromeOptions = list(
+    args = c('--headless', '--window-size=1280,800')))
+
+snap_page <- function(site, file = "test.png", port = 4869L){
+  drv <- wdman::chrome(port = port, version = "73.0.3683.68")
+  sel <- remoteDriver(port = port, browser = "chrome",
+                    , extraCapabilities = list(
+                        chromeOptions = list(
+                          args = c('--headless', '--window-size=1280,800')))
+)
+  sel$open()
+  sel$navigate(paste0("file://", site))
+  sel$screenshot(file = file)
+  invisible(sel)
+}
