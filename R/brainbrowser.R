@@ -1,3 +1,20 @@
+#' Generate a brainbrowser html widget of a given obj
+#'
+#' Sets up a simple htmlwidget displaying a mesh with
+#' brainbrowser
+#'
+#' @param obj The object to display
+#' @param intensities Intensity values, one per mesh vertex
+#' @param color_map color values, one per mesh vertex
+#' @param min minimum for the displayed intensities
+#' @param max maximum for the displayed intensities
+#' @param A zoom level for the mesh
+#' @param debug whether to append the viewer object to
+#' the html window (no longer necessary, the viewer is attached
+#' to the widget dom element).
+#' @param bg_colour The background colour for the widget, an empty
+#' string has a clear background.
+#' @param bg_plot A command to produce a plot in the background of a widget
 #' @import htmlwidgets lenses htmltools
 #' @importFrom purrr keep discard map_lgl map
 #' @importFrom svglite stringSVG
@@ -85,6 +102,12 @@ renderBrainbrowser <- function(expr, env = parent.frame(), quoted = FALSE) {
 }
 
 
+#' An abstract representation of a brainbrowser widget
+#'
+#' This is used to construct layouts containing multiple widgets.
+#' Primarily just stores the arguments to evaluate at render time.
+#' @inheritParams brainbrowser
+#' @export
 bb <- function(obj = NULL
              , intensities = NULL
              , color_map = NULL
@@ -108,6 +131,21 @@ bb <- function(obj = NULL
   structure(args, class = "bb")
 }
 
+#' Abstract row layout for brainbrowser widgets.
+#'
+#' Takes one or more layout objects (bb, bbrow, and bbcols) and assembles them
+#' into a row. Data can be passed in via the `data` argument, this can be used to
+#' fill missing data into the child layout objects. The width is
+#' divided amongst the children by their relative widths.
+#'
+#' @param old A layout object `bb`, `bbrow`, or `bbcol`
+#' @param ... More unnamed layout objects
+#' @param height A height for the row
+#' @param width A width for the row
+#' @param data A list containing arguments to `bb` to be applied where child layout
+#' objects are missing arguments. This can be used to set the same mesh for the whole
+#' row for example.
+#' @export
 bbrow <- function(old, ..., height = 1, width = 1, bg_plot = NULL, data = NULL){  
   new <- list(...)
   bg_plot <- enquo(bg_plot)
@@ -124,6 +162,20 @@ bbrow <- function(old, ..., height = 1, width = 1, bg_plot = NULL, data = NULL){
   }         
 }
 
+#' Abstract column layout for brainbrowser widgets.
+#'
+#' Takes one or more layout objects (bb, bbrow, and bbcols) and assembles them
+#' into a column. Data can be passed in via the `data` argument, this can be used to
+#' fill missing data into the child layout objects.
+#'
+#' @param old A layout object `bb`, `bbrow`, or `bbcol`
+#' @param ... More unnamed layout objects
+#' @param height A height for the column
+#' @param width A width for the column
+#' @param data A list containing arguments to `bb` to be applied where child layout
+#' objects are missing arguments. This can be used to set the same mesh for the whole
+#' column for example.
+#' @export
 bbcol <- function(old, ..., height = 1, width = 1, bg_plot = NULL, data = NULL){
   new <- list(...)
   bg_plot <- enquo(bg_plot)
@@ -141,9 +193,8 @@ bbcol <- function(old, ..., height = 1, width = 1, bg_plot = NULL, data = NULL){
   }         
 }
 
-`%cb%` <- bbrow
-`%rb%` <- bbcol
-
+#' A lens into the width of a layout object
+#' @export
 width_l <-
     lenses::lens(view =
              function(x){
@@ -160,6 +211,12 @@ width_l <-
                  stop("width_l is not valid for object of class ", class(x))
              })
 
+#' Spread a width across a layout
+#'
+#' Expand layout objects proportionality to fit a fixed width.
+#'
+#' @param fig A layout
+#' @param width The width to fill
 spread_widths <- function(fig, width) UseMethod("spread_widths")
 spread_widths.bb <- function(fig, width) set(fig, c_l("width"), width)
 spread_widths.bbrow <- function(fig, width){
@@ -189,6 +246,8 @@ spread_widths.bbcol <- function(fig, width){
     fig_updated    
 }
 
+#' A lens into the height of a layout object
+#' @export
 height_l <-
     lenses::lens(view =
              function(x){
@@ -205,6 +264,12 @@ height_l <-
                  stop("height_l is not valid for object of class ", class(x))
              })
 
+#' Spread a height across a layout
+#'
+#' Expand layout objects proportionality to fit a fixed height.
+#'
+#' @param fig A layout
+#' @param height The height to fill
 spread_heights <- function(fig, height) UseMethod("spread_heights")
 spread_heights.bb <- function(fig, height) set(fig, c_l("height"), height)
 spread_heights.bbrow <- function(fig, height){
@@ -234,7 +299,15 @@ spread_heights.bbcol <- function(fig, height){
     
 }
 
-unify_data <- function(fig, seed = NULL) UseMethod("unify_data")
+#' Unify data
+#'
+#' Fill in missing layout data from a reference list of arguments
+#' to `bb`
+#'
+#' @param fig a layout
+#' @param data the reference data
+#' @export
+unify_data <- function(fig, data = NULL) UseMethod("unify_data")
 unify_data.bb <- function(fig, data){
     if(!is.null(data)){
         data <- discard(data, is.null)
@@ -251,7 +324,11 @@ unify_data.bbcol <- function(fig, data){
 unify_data.bbrow <- function(fig, data){
     unify_data.bbcol(fig, data)
 }
-        
+
+#' Materialize a figure
+#'
+#' Materialize the figure by recursively spreading the layout to
+#' fit a fixed width and height
 reify_fig <- function(fig, height = 400, width = 600){
     fig %>%
         spread_widths(width) %>%
@@ -267,6 +344,14 @@ table_style <-
       , "padding-right" = "0px"
       , "padding-left" = "0px")
 
+#' Figure to html
+#'
+#' Convert a layout to an html page full of widgets.
+#' 
+#' @param fig the layout
+#' @param unit_w the css unit to use for the widths
+#' @param unit_h the css unit to use for the heights
+#' @export
 fig_to_html <- function(fig, unit_w = "px", unit_h = "px"){
   scene <- fig_to_html_helper(fig, unit_w = unit_w, unit_h = unit_h)
 
@@ -350,6 +435,17 @@ fig_to_html_helper.bbrow <- function(fig, unit_w = "px", unit_h = "px"){
                        }))))
 }
 
+#' Take a screenshot
+#'
+#' Take a snapshot of an html page using the chrome drive
+#'
+#' @param site the url to image
+#' @param file a png file to save the output
+#' @param port an integer port number for the chrome driver
+#' @param height a height in pixels for the page viewport
+#' @param width a width in pixels for the page viewport
+#' @param version the version of the chrome driver to use
+#' @export
 snap_page <- function(site, file = "test.png", port = 4869L
                     , height = 800, width = 1280
                     , version = NULL){
